@@ -20,7 +20,7 @@ jobs:
 
     # changes the base-tag in index.html from '/' to 'KittyPics_BlazorWASM' to match GitHub Pages repository subdirectory
     - name: Change base-tag in index.html from / to KittyPics_BlazorWASM
-      run: sed -i 's/<base href="\/" \/>/<base href="\/KittyPics_BlazorWASM\/" \/>/g' release/wwwroot/index.html
+      run: sed -i 's/<base href="\/" \/>/<base href="\/kittypics_blazorwasm\/" \/>/g' release/wwwroot/index.html
 
     # copy index.html to 404.html to serve the same file when a file is not found
     - name: copy index.html to 404.html

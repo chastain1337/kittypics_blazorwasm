@@ -15,7 +15,7 @@ public class PicsController : ControllerBase
         _picsRepository = picsRepository;
     }
     
-    [HttpGet(Name = "GetRandomPics")]
+    [HttpGet("GetRandomPics")]
     public IEnumerable<Pic> GetRandomPics([FromQuery] int count)
     {
         return _picsRepository.GetRandomPics(count);

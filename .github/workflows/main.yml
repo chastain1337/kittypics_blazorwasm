@@ -12,6 +12,7 @@ jobs:
     - name: Edit a .NET Core database connection string in appsettings.json
       uses: benday-inc/edit-dbconnstr-in-appsettings@v1.3
       with:
+        pathToSettingsFile: ./KittyPics.Api/appsettings.json
         connectionString: ${{ secrets.DB_CONNECTION_STRING }} 
     - name: Build the Docker image
       working-directory: ./KittyPics.Api

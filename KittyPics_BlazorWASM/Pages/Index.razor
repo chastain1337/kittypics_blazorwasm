@@ -1,9 +1,94 @@
 ﻿@page "/"
+@using System.Timers
+@implements IDisposable;
+<PageTitle>KittyPics</PageTitle>
+<img style="position: absolute; right: 0; bottom: 0; width: 10%; max-width: 100px;" src="peeking.png" alt="Kitty"/>
 
-<PageTitle>Index</PageTitle>
+<div style="text-align: center;">
+    <div style="font-size: xxx-large; font-weight: bold;">KITTY PICS</div>
+    <div style="font-size: x-large">Vote on which picture you like most.</div>
+</div>
 
-<h1>Hello, world!</h1>
+@if (SecondsRemaining != 0)
+{
+    <div class="round-time-bar" style="@($"--duration: {SecondsRemaining};")">
+      <div></div>
+    </div>
+}
 
-Welcome to your new app.
 
-<SurveyPrompt Title="How is Blazor working for you?"/>
+
+<style>
+    .round-time-bar div {
+      height: 20px;
+      max-width:  450px;
+      margin:  10px auto;
+      border-radius: 30px;
+      background: #fff;
+      animation: roundtime calc(var(--duration) * 1s) linear forwards;
+      transform-origin: left center;
+    }
+    
+    @@keyframes roundtime {
+      to {
+        /* More performant than animating `width` */
+        transform: scaleX(0);
+      }
+    }
+</style>
+
+@code {
+
+    private Timer _timer = null!;
+    private int SecondsRemaining { get; set; } = 5;
+    private const int NumberOfPicsToShowAtOnce = 4;
+    private int[] ImageIds { get; set; } = null!;
+    private int Iterations { get; set; } = 0;
+    private Random _random = new();
+    
+    protected override void OnInitialized()
+    {
+        ImageIds = GenerateNewImageIds();
+        _timer = new Timer(5000);
+        _timer.Elapsed += OnTimedEvent;
+        _timer.Start();
+    }
+
+    private int[] GenerateNewImageIds()
+    {
+        const int totalKittyPics = 35;
+        var imgs = new HashSet<int>();
+        for (var i = 0; i < NumberOfPicsToShowAtOnce; i++)
+        {
+            var id = _random.Next(1, totalKittyPics + 1);
+            while (imgs.Contains(id))
+            {
+                id = _random.Next(1, totalKittyPics + 1);
+            }
+
+            imgs.Add(id);
+        }
+
+        return imgs.ToArray();
+    }
+    
+    private async void OnTimedEvent(object? sender, ElapsedEventArgs e)
+    {
+        await InvokeAsync( async () =>
+        {
+            _timer.Stop();
+            SecondsRemaining = 0;
+            StateHasChanged();
+            await Task.Delay(2000);
+            SecondsRemaining = 5;
+            _timer.Start();
+            StateHasChanged();
+        });
+    }
+
+    public void Dispose()
+    {
+        _timer.Dispose();
+    }
+
+}

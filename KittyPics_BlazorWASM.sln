@@ -2,6 +2,10 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KittyPics_BlazorWASM", "KittyPics_BlazorWASM\KittyPics_BlazorWASM.csproj", "{8690A4E2-F6A2-4907-A2E5-F9E19876C472}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KittyPics.Api", "KittyPics.Api\KittyPics.Api.csproj", "{EB53760D-2411-4625-AEEA-95A30A8FEB48}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KittyPics.Shared", "KittyPics.Shared\KittyPics.Shared.csproj", "{B810ED34-121D-432C-8459-7579595A9372}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +16,13 @@ Global
 		{8690A4E2-F6A2-4907-A2E5-F9E19876C472}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8690A4E2-F6A2-4907-A2E5-F9E19876C472}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8690A4E2-F6A2-4907-A2E5-F9E19876C472}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EB53760D-2411-4625-AEEA-95A30A8FEB48}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB53760D-2411-4625-AEEA-95A30A8FEB48}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB53760D-2411-4625-AEEA-95A30A8FEB48}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB53760D-2411-4625-AEEA-95A30A8FEB48}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B810ED34-121D-432C-8459-7579595A9372}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B810ED34-121D-432C-8459-7579595A9372}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B810ED34-121D-432C-8459-7579595A9372}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B810ED34-121D-432C-8459-7579595A9372}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

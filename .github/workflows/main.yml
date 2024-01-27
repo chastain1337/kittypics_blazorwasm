@@ -15,7 +15,7 @@ jobs:
         pathToSettingsFile: ./KittyPics.Api/appsettings.json
         connectionString: ${{ secrets.DB_CONNECTION_STRING }} 
     - name: Build the Docker image
-      working-directory: ./KittyPics.Api
+      working-directory: .
       run: docker build . -t jameschastain1337/container-name:latest
     - name: Log into Docker Hub
       uses: docker/login-action@v2

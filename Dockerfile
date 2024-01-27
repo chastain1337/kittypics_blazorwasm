@@ -6,8 +6,8 @@ EXPOSE 443
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["KittyPics.Api/KittyPics.Api.csproj", "KittyPics.Api/"]
-COPY ["KittyPics.Shared/KittyPics.Shared.csproj", "KittyPics.Shared/"]
+COPY ["./KittyPics.Api/KittyPics.Api.csproj", "KittyPics.Api/"]
+COPY ["./KittyPics.Shared/KittyPics.Shared.csproj", "KittyPics.Shared/"]
 RUN dotnet restore "KittyPics.Api/KittyPics.Api.csproj"
 COPY . .
 WORKDIR "/src/KittyPics.Api"

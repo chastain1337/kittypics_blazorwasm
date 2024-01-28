@@ -34,6 +34,16 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+#if LOCAL
+var originMatchString = "*localhost*";
+#else
+var originMatchString = "*chastain1337.github.io/kittypics_blazorwasm*"
+#endif
+app.UseCors(x => x
+                .SetIsOriginAllowed(origin => origin.Contains(originMatchString))
+                .AllowAnyMethod()
+                .AllowAnyHeader());
+
 app.UseHttpsRedirection();
 
 app.UseAuthorization();

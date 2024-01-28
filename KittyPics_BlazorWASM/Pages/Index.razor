@@ -1,6 +1,8 @@
 ﻿@page "/"
 @using System.Timers
 @implements IDisposable;
+@inject IConfiguration Configruation
+
 <PageTitle>KittyPics</PageTitle>
 <img style="position: absolute; right: 0; bottom: 0; width: 10%; max-width: 100px;" src="peeking.png" alt="Kitty"/>
 
@@ -8,6 +10,7 @@
     <div style="font-size: xxx-large; font-weight: bold;">KITTY PICS</div>
     <div style="font-size: x-large">Vote on which picture you like most.</div>
 </div>
+@Configruation["apiUrl"]
 
 @if (SecondsRemaining != 0)
 {

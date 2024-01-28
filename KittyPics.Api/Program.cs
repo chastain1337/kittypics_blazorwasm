@@ -35,9 +35,9 @@ if (app.Environment.IsDevelopment())
 }
 
 #if LOCAL
-var originMatchString = "*localhost*";
+var originMatchString = "localhost";
 #else
-var originMatchString = "*chastain1337.github.io/kittypics_blazorwasm*";
+var originMatchString = "chastain1337.github.io/kittypics_blazorwasm";
 #endif
 app.UseCors(x => x
                 .SetIsOriginAllowed(origin => origin.Contains(originMatchString))

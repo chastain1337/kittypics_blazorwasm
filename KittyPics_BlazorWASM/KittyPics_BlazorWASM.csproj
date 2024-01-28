@@ -20,4 +20,8 @@
       <Folder Include="wwwroot\kitty\" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\KittyPics.Shared\KittyPics.Shared.csproj" />
+    </ItemGroup>
+
 </Project>

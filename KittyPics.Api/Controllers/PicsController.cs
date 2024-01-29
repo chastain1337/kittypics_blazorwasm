@@ -20,4 +20,10 @@ public class PicsController : ControllerBase
     {
         return _picsRepository.GetRandomPics(count);
     }
+
+    [HttpGet("Vote")]
+    public void Vote([FromQuery] int picId)
+    {
+        _picsRepository.Vote(picId);
+    }
 }

@@ -19,6 +19,12 @@ public class PicsRepository : IPicsRepository, IDisposable
         return cn.Query<Pic>(q,new {count});
     }
 
+    public void Vote(int picId)
+    {
+        const string q = "UPDATE Pics SET Votes = Votes + 1 WHERE PicID = @picId";
+        cn.Query(q, new {picId});
+    }
+
     public void Dispose()
     {
         cn.Dispose();
@@ -28,4 +34,5 @@ public class PicsRepository : IPicsRepository, IDisposable
 public interface IPicsRepository
 {
     public IEnumerable<Pic> GetRandomPics(int count);
+    void Vote(int picId);
 }

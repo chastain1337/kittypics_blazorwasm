@@ -3,6 +3,7 @@
 @using KittyPics.Shared
 @implements IDisposable;
 @inject HttpClient Http
+@inject ILogger<Index> Logger;
 
 <PageTitle>KittyPics</PageTitle>
 <img style="position: absolute; right: 0; bottom: 0; width: 10%; max-width: 100px;" src="peeking.png" alt="Kitty"/>
@@ -12,34 +13,102 @@
     <div style="font-size: x-large">Vote on which picture you like most.</div>
 </div>
 
-@if (SecondsRemaining != 0)
+@if (AnErrorOccurred)
 {
-    <div class="round-time-bar" style="@($"--duration: {SecondsRemaining};")">
-      <div></div>
+    <div>
+        An error occurred loading the pictures. Please refresh and try again.
     </div>
 }
 else
 {
-    <div style="height: 20px;"></div>
-}
-
-<div style="margin-top: 20px;">
-    @if (LoadingPics)
+    @if (!LoadingPics && SecondsRemaining != 0)
     {
-        <Loading />
+        <div class="round-time-bar" style="@($"--duration: {SecondsRemaining};")">
+            <div></div>
+        </div>
     }
     else
     {
-        <div style="display: flex; gap: 20px; justify-content: center; align-items: center;">
-        @foreach (var pic in Pics)
-        {
-            <img src="@pic.Url" width="300" />
-        }
-        </div>
+        <div style="height: 20px;"></div>
     }
-</div>
+
+    <div style="margin-top: 20px;">
+        @if (LoadingPics)
+        {
+            <Loading/>
+        }
+        else
+        {
+            <div class="row">
+                @foreach (var pic in Pics)
+                {
+                    <div class="column">
+                        <div style="position: relative; padding-top: 100%;">
+                            <div class="@($"kitty-pic {(HasVoted ? "vote-cast" : "")}")" @onclick="@(() => VoteForPic(pic))" style="background: url(@pic.Url), #555; background-size: contain, auto">
+                                @if (HasVoted)
+                                {
+                                    <div class="image-overlay">
+                                        @if (PicWithHighestVotes == pic.PicID)
+                                        {
+                                            <img src="crown.svg" style="width: 5em;" alt="winner" />
+                                        }
+                                        <div style="font-size: 7em; line-height: 0.5;">@pic.Votes</div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+}
+
 
 <style>
+    .image-overlay { text-align: center; background: none; }
+    .image-overlay * {
+        background:  none;
+    }
+    .vote-cast {
+        background-blend-mode: screen;
+        transition: all 0.3s ease 0s;
+    }
+    
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+    
+    .column {
+      flex: 20%;
+      max-width: 20%;
+      padding: 0 10px;
+   
+    }
+    
+    .column .kitty-pic {
+      width: 100%;
+      position: absolute;
+      top: 0; left: 0; bottom: 0; right: 0;
+    }
+    
+    @@media screen and (max-width: 800px) {
+      .column {
+        flex: 40%;
+        max-width: 40%;
+      }
+    }
+    
+    @@media screen and (max-width: 600px) {
+      .column {
+        flex: 90%;
+        max-width: 90%;
+      }
+    }
+    
     .round-time-bar div {
       height: 20px;
       max-width:  450px;
@@ -48,6 +117,21 @@ else
       background: #fff;
       animation: roundtime calc(var(--duration) * 1s) linear forwards;
       transform-origin: left center;
+    }
+    
+    .kitty-pic {
+        transition: all 0.3s ease 0s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .kitty-pic:hover {
+        cursor: pointer;
+        -webkit-box-shadow: 0px 5px 40px -10px rgba(0,0,0,0.57);
+        -moz-box-shadow: 0px 5px 40px -10px rgba(0,0,0,0.57);
+        transform: scale(108%);
+        transition: all 0.3s ease 0s;
     }
     
     @@keyframes roundtime {
@@ -65,7 +149,9 @@ else
     private const int NumberOfPicsToShowAtOnce = 4;
     private IEnumerable<Pic> Pics { get; set; } = null!;
     private bool LoadingPics { get; set; } = true;
-    
+    private bool HasVoted { get; set; }
+    private int? PicWithHighestVotes => Pics?.MaxBy(p => p.Votes)?.PicID;
+
     protected override async Task OnInitializedAsync()
     {
         Pics = await GetImages();
@@ -77,19 +163,27 @@ else
 
     private async Task<IEnumerable<Pic>> GetImages()
     {
-        return await Http.GetFromJsonAsync<List<Pic>>($"Pics/GetRandomPics?count={NumberOfPicsToShowAtOnce}");
+        try
+        {
+            HasVoted = false;
+            return await Http.GetFromJsonAsync<List<Pic>>($"Pics/GetRandomPics?count={NumberOfPicsToShowAtOnce}");
+        }
+        catch (Exception e)
+        {
+            HandleError(e);
+            throw;
+        }
     }
-    
+
     private async void OnTimedEvent(object? sender, ElapsedEventArgs e)
     {
-        await InvokeAsync( async () =>
+        await InvokeAsync(async () =>
         {
             _timer.Stop();
             SecondsRemaining = 0;
             LoadingPics = true;
             StateHasChanged();
             Pics = await GetImages();
-            await Task.Delay(2000);
             SecondsRemaining = 5;
             LoadingPics = false;
             _timer.Start();
@@ -100,5 +194,32 @@ else
     public void Dispose()
     {
         _timer.Dispose();
+    }
+
+    public bool AnErrorOccurred { get; set; }
+
+    private async Task VoteForPic(Pic pic)
+    {
+        if (HasVoted) return;
+        try
+        {
+            pic.Votes++;
+            HasVoted = true;
+            await Http.GetAsync($"Pics/Vote?picId={pic.PicID}");
+            // show the votes on all the pics 
+        }
+        catch (Exception e)
+        {
+            HandleError(e);
+            throw;
+        }
+    }
+
+    private void HandleError(Exception e)
+    {
+        AnErrorOccurred = true;
+        _timer.Stop();
+        Logger.LogCritical(e.Message);
+        LoadingPics = false;
     }
 }

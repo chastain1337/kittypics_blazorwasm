@@ -6,7 +6,7 @@
 @inject ILogger<Index> Logger;
 
 <PageTitle>KittyPics</PageTitle>
-<img style="position: absolute; right: 0; bottom: 0; width: 10%; max-width: 100px;" src="peeking.png" alt="Kitty"/>
+<img style="position: fixed; right: 0; bottom: 0; width: 10%; max-width: 100px;" src="peeking.png" alt="Kitty"/>
 
 <div style="text-align: center;">
     <div style="font-size: xxx-large; font-weight: bold;">KITTY PICS</div>
@@ -15,8 +15,15 @@
 
 @if (AnErrorOccurred)
 {
-    <div>
+    <div style="text-align: center;">
         An error occurred loading the pictures. Please refresh and try again.
+    </div>
+}
+else if (AreYouStillThere)
+{
+    <div style="text-align: center;">
+        <div>It's been awhile since you voted. Are you still there?</div>
+        <button class="confirm-still-there-button" @onclick="HideAreYouStillThere">Yes!</button>
     </div>
 }
 else
@@ -66,6 +73,14 @@ else
 
 
 <style>
+    .confirm-still-there-button {
+	padding: 10px;
+	border-radius: 5px;
+	background-color: white;
+	color: black;
+	margin: 5px 0;
+
+    }
     .image-overlay { text-align: center; background: none; }
     .image-overlay * {
         background:  none;
@@ -77,16 +92,11 @@ else
     
     .row {
       display: flex;
+      max-width: 60%;
       flex-wrap: wrap;
       gap: 10px;
       justify-content: center;
-    }
-    
-    .column {
-      flex: 20%;
-      max-width: 20%;
-      padding: 0 10px;
-   
+      margin: auto;
     }
     
     .column .kitty-pic {
@@ -95,12 +105,11 @@ else
       top: 0; left: 0; bottom: 0; right: 0;
     }
     
-    @@media screen and (max-width: 800px) {
       .column {
         flex: 40%;
         max-width: 40%;
+        padding: 0 10px;
       }
-    }
     
     @@media screen and (max-width: 600px) {
       .column {
@@ -144,19 +153,19 @@ else
 
 @code {
 
-    private Timer _timer = null!;
+    private Timer _timer = new(5000);
     private int SecondsRemaining { get; set; } = 5;
     private const int NumberOfPicsToShowAtOnce = 4;
     private IEnumerable<Pic> Pics { get; set; } = null!;
     private bool LoadingPics { get; set; } = true;
     private bool HasVoted { get; set; }
     private int? PicWithHighestVotes => Pics?.MaxBy(p => p.Votes)?.PicID;
+    private int IterationsSinceLastVote { get; set; } = 0;
 
     protected override async Task OnInitializedAsync()
     {
         Pics = await GetImages();
         LoadingPics = false;
-        _timer = new Timer(5000);
         _timer.Elapsed += OnTimedEvent;
         _timer.Start();
     }
@@ -186,10 +195,21 @@ else
             Pics = await GetImages();
             SecondsRemaining = 5;
             LoadingPics = false;
-            _timer.Start();
+            IterationsSinceLastVote++;
+            if (IterationsSinceLastVote > 5)
+            {
+                AreYouStillThere = true;
+            }
+            else
+            {
+                _timer.Start();
+            }
+            
             StateHasChanged();
         });
     }
+
+    public bool AreYouStillThere { get; set; }
 
     public void Dispose()
     {
@@ -201,6 +221,7 @@ else
     private async Task VoteForPic(Pic pic)
     {
         if (HasVoted) return;
+        IterationsSinceLastVote = 0;
         try
         {
             pic.Votes++;
@@ -222,4 +243,12 @@ else
         Logger.LogCritical(e.Message);
         LoadingPics = false;
     }
+
+    private void HideAreYouStillThere()
+    {
+        IterationsSinceLastVote = 0;
+        _timer.Start();
+        AreYouStillThere = false;
+    }
+
 }
